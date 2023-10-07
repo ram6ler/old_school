@@ -1,3 +1,4 @@
+/// A data class for terminal cells.
 class Cell {
   Cell({
     required this.row,
@@ -24,10 +25,9 @@ class Cell {
     color = that.color;
   }
 
-  // Overriding hashCode and == so that a cell
-  // may potentially be added multiple times to
-  // a set for updating and only the most recent
-  // edit will be scheduled.
+  // Overriding hashCode and == so that a cell may potentially be added
+  // multiple times to a scheduling set and only the most recent edit
+  // will be made.
 
   @override
   int get hashCode => (row, column).hashCode;

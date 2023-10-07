@@ -1,6 +1,6 @@
 import "dart:html";
 import "dart:math" show Random;
-import "package:old_school/src/screen.dart";
+import "package:old_school/old_school.dart";
 
 void main() {
   final rand = Random(),

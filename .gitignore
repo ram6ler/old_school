@@ -1,3 +1,6 @@
+# mac
+.DS_Store
+
 # pub
 .dart_tool/
 .packages
@@ -8,16 +11,11 @@ pubspec.lock
 # dartdoc
 doc/api/
 
+# compiled js
 *.info.json 
 *.js
 *.js.deps
 *.js.map
 
-# python
-.env*
-.mypy_cache
-
-play*
+# play
 delete*
-scratch*
-tool/compile_examples.sh
