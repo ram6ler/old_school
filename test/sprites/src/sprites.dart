@@ -1,4 +1,4 @@
-import "dart:html";
+import "package:web/web.dart" as web;
 import "package:old_school/old_school.dart";
 
 void main() {
@@ -88,7 +88,7 @@ void main() {
         pixelHeight: 3,
         backgroundColor: "black",
         defaultColor: "white",
-        container: document.getElementById("sprites")!,
+        container: web.document.getElementById("sprites")! as web.HTMLElement,
       );
 
   for (var i = 0; i < 25; i++) {

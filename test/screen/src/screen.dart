@@ -1,10 +1,10 @@
-import "dart:html";
-import "dart:math" show Random;
+import "dart:math" show Random, Rectangle;
+import "package:web/web.dart" as web;
 import "package:old_school/old_school.dart";
 
 void main() {
   final rand = Random(),
-      container = document.getElementById("screen")! as DivElement,
+      container = web.document.getElementById("screen")! as web.HTMLDivElement,
       width = 250,
       height = 250,
       screen = Screen(

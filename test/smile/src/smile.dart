@@ -1,31 +1,3 @@
-# Example
-
-## Hello, world
-
-```dart
-import "package:web/web.dart" as web;
-import 'package:old_school/old_school.dart';
-
-main() async {
-  final terminal = Terminal(
-    rows: 25,
-    columns: 40,
-    container: web.document.getElementById("hello")! as web.HTMLElement,
-  );
-  terminal.output("Hello, world!");
-  final response = await terminal.input(
-    prompt: "What is your name? ",
-    length: 20,
-  );
-  terminal.output("Hello, $response!");
-}
-```
-
-![A terminal running hello, world!](pics/hello.gif)
-
-## Smile
-
-```dart
 import "package:web/web.dart" as web;
 import 'package:old_school/old_school.dart';
 
@@ -37,7 +9,7 @@ main() async {
         rowGap: 0,
       ),
       smile = [
-        //         In binary:
+        // In binary:
         0x07E0, // .....******.....
         0x1818, // ...**......**...
         0x2004, // ..*..........*..
@@ -66,10 +38,3 @@ main() async {
     );
   }
 }
-```
-
-![A bunch of smiling faces.](pics/smile.png)
-
-## Demos
-
-To see *Old School* in action, take a look at [these demos](https://ram6ler.github.io/old_school_demos/index.html).

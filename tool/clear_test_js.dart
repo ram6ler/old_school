@@ -2,13 +2,15 @@ import "dart:io";
 
 main() async {
   for (final test in [
+    "circles",
+    "hello",
+    "lines",
     "mouse_events",
     "pixel_modes",
     "screen",
-    "terminal",
-    "lines",
-    "circles",
+    "smile",
     "sprites",
+    "terminal",
   ]) {
     print("Clearing $test...");
     for (final end in [

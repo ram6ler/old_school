@@ -1,6 +1,6 @@
-import "dart:html";
 import "dart:async" show Timer;
 import "dart:math" show Random, sin, cos, pi;
+import "package:web/web.dart" as web;
 import "package:old_school/old_school.dart";
 
 final rand = Random();
@@ -47,7 +47,7 @@ void main() {
         pixelHeight: 2,
         backgroundColor: "darkgray",
         defaultColor: "white",
-        container: document.getElementById("circles")!,
+        container: web.document.getElementById("circles")! as web.HTMLElement,
       ),
       bubbles = [for (var _ = 0; _ < 10; _++) Bubble(screen)];
   Timer.periodic(Duration(milliseconds: 100), (_) {

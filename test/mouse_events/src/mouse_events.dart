@@ -1,21 +1,14 @@
 import "dart:html";
 import "dart:math" show Random;
+import "package:web/web.dart" as web;
 import "package:old_school/old_school.dart";
 
 void main() {
   final rand = Random(),
-      container = document.getElementById("mouse_events")!,
-      display = document.getElementById("mouse_events_data")!
-        ..style.display = "grid"
-        ..style.gridTemplateColumns = "auto " * 10,
+      container = document.getElementById("mouse_events")! as web.HTMLElement,
+      display = document.getElementById("mouse_events_data")!,
       showInfo = (Terminal t, MouseData d) {
-        display.children.add(ParagraphElement()
-          ..innerHtml = d.toString().replaceAll("\n", "<br>"));
-        if (display.children.length > 10) {
-          display.children
-            ..removeAt(0)
-            ..removeAt(0);
-        }
+        display..innerHtml = d.toString().replaceAll("\n", "<br>");
       },
       t = Terminal(
         rows: 5,

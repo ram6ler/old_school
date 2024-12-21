@@ -18,4 +18,4 @@ doc/api/
 *.js.map
 
 # play
-delete*
+play*

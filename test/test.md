@@ -1,6 +1,6 @@
 # Test
 
-To compile these tests (in a Unix-like system):
+To compile these tests:
 
 ```text
 dart tools/compile_tests.dart

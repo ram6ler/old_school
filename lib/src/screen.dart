@@ -1,6 +1,7 @@
-import "dart:html";
+import "dart:js_interop";
 import "dart:typed_data" show Uint32List;
-import "dart:math" show min, max;
+import "dart:math" show min, max, Rectangle;
+import "package:web/web.dart" as web;
 import "sprite.dart";
 
 /// A screen class that maps pixels to a wrapped canvas element, keeps track
@@ -14,27 +15,25 @@ class Screen {
     required this.pixelHeight,
     required this.backgroundColor,
     required this.defaultColor,
-    required Element container,
-  })  : _canvas = CanvasElement(
-          width: widthInPixels * pixelWidth,
-          height: heightInPixels * pixelHeight,
-        ),
-        _buffer = CanvasElement(
-          width: widthInPixels * pixelWidth,
-          height: heightInPixels * pixelHeight,
-        ),
+    required web.HTMLElement container,
+  })  : _canvas = web.HTMLCanvasElement()
+          ..width = widthInPixels * pixelWidth
+          ..height = heightInPixels * pixelHeight,
+        _buffer = web.HTMLCanvasElement()
+          ..width = widthInPixels * pixelWidth
+          ..height = heightInPixels * pixelHeight,
         _data = [
           for (var _ = 0; _ < heightInPixels; _++)
             Uint32List(widthInPixels ~/ 32 + 1)
         ],
         _documentHasFocus = true {
-    document
-      ..onFocus.listen((_) {
+    web.document
+      ..onfocus = (() {
         _documentHasFocus = true;
-      })
-      ..onBlur.listen((_) {
+      }).toJS
+      ..onblur = (() {
         _documentHasFocus = false;
-      });
+      }).toJS;
 
     _canvas
       ..tabIndex = -1
@@ -56,7 +55,7 @@ class Screen {
       ..style.width = "fit-content"
       ..style.height = "fit-content"
       ..style.background = "gray"
-      ..children = [_canvas];
+      ..appendChild(_canvas);
 
     clear();
   }
@@ -80,10 +79,10 @@ class Screen {
   final String backgroundColor;
 
   /// The canvas used to draw the screen.
-  final CanvasElement _canvas;
+  final web.HTMLCanvasElement _canvas;
 
   /// A buffer canvas for poking sprites.
-  final CanvasElement _buffer;
+  final web.HTMLCanvasElement _buffer;
 
   /// A record of which bits are currently set.
   final List<Uint32List> _data;
@@ -100,7 +99,7 @@ class Screen {
   void _clearBuffer() => _buffer.context2D
     ..save()
     ..beginPath()
-    ..clearRect(0, 0, _buffer.width!, _buffer.height!)
+    ..clearRect(0, 0, _buffer.width, _buffer.height)
     ..restore();
 
   /// Copies the buffer to the canvas.
@@ -114,7 +113,7 @@ class Screen {
   void _setPixelOff(
     int pixelRow,
     int pixelColumn,
-    CanvasElement destination,
+    web.HTMLCanvasElement destination,
     bool wrap,
   ) {
     if (!wrap &&
@@ -133,7 +132,7 @@ class Screen {
     destination.context2D
       ..save()
       ..beginPath()
-      ..fillStyle = backgroundColor
+      ..fillStyle = backgroundColor.toJS
       ..fillRect(
         pixelColumn * pixelWidth,
         pixelRow * pixelHeight,
@@ -156,7 +155,7 @@ class Screen {
     int pixelRow,
     int pixelColumn,
     String color,
-    CanvasElement destination,
+    web.HTMLCanvasElement destination,
     bool wrap,
   ) {
     if (!wrap &&
@@ -173,7 +172,7 @@ class Screen {
     destination.context2D
       ..save()
       ..beginPath()
-      ..fillStyle = color
+      ..fillStyle = color.toJS
       ..fillRect(
         pixelColumn * pixelWidth,
         pixelRow * pixelHeight,
@@ -219,14 +218,14 @@ class Screen {
       }
       _buffer.context2D
         ..save()
-        ..fillStyle = backgroundColor
-        ..fillRect(0, 0, _buffer.width!, _buffer.height!)
+        ..fillStyle = backgroundColor.toJS
+        ..fillRect(0, 0, _buffer.width, _buffer.height)
         ..restore();
     } else {
       final top = rectangle.top % heightInPixels,
           left = rectangle.left % widthInPixels,
-          bottom = min(rectangle.top + rectangle.height.abs(), heightInPixels),
-          right = min(rectangle.left + rectangle.height.abs(), widthInPixels);
+          bottom = min(top + rectangle.height.abs(), heightInPixels),
+          right = min(left + rectangle.height.abs(), widthInPixels);
       for (var r = top; r < bottom; r++) {
         final pixelRow = r % heightInPixels;
         for (var c = left; c < right; c++) {
@@ -245,7 +244,8 @@ class Screen {
         for (final value in _canvas.context2D
             .getImageData(
                 pixelColumn * pixelWidth, pixelRow * pixelHeight, 1, 1)
-            .data)
+            .data
+            .toDart)
           value.toRadixString(16).padLeft(2, "0")
       ].join("");
 
@@ -446,11 +446,11 @@ class Screen {
       ..save()
       ..beginPath()
       ..drawImage(_canvas, 0, -pixels * pixelHeight)
-      ..fillStyle = backgroundColor
+      ..fillStyle = backgroundColor.toJS
       ..fillRect(
         0,
         (heightInPixels - pixels) * pixelHeight,
-        _buffer.width!,
+        _buffer.width,
         pixels * pixelHeight,
       )
       ..restore();
@@ -571,17 +571,17 @@ class Screen {
   }
 
   /// Maps an offset (e.g. from a mouse event) to the corresponding pixel.
-  (int pixelRow, int pixelColumn) offsetToPixel(Point offset) {
-    final x = offset.x - 1,
-        y = offset.y - 1,
-        pixelRow = max(min(y ~/ pixelHeight, heightInPixels - 1), 0),
-        pixelColumn = max(min(x ~/ pixelWidth, widthInPixels - 1), 0);
+  (int pixelRow, int pixelColumn) offsetToPixel((int x, int y) offset) {
+    final (x, y) = offset;
+    final pixelRow = max(min((y - 1) ~/ pixelHeight, heightInPixels - 1), 0),
+        pixelColumn = max(min((x - 1) ~/ pixelWidth, widthInPixels - 1), 0);
     return (pixelRow, pixelColumn);
   }
 
   /// Whether the screen has focus.
   bool _documentHasFocus;
-  bool get hasFocus => _documentHasFocus && document.activeElement == _canvas;
+  bool get hasFocus =>
+      _documentHasFocus && web.document.activeElement == _canvas;
 
   /// Gives focus to the screen.
   void focus() {

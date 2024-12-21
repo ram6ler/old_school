@@ -1,12 +1,12 @@
-import "dart:html";
 import "dart:math" show sin, cos, pi;
+import "package:web/web.dart" as web;
 import "package:old_school/old_school.dart";
 
 void main() {
   final terminal = Terminal(
         rows: 20,
         columns: 20,
-        container: document.getElementById("lines")!,
+        container: web.document.getElementById("lines")! as web.HTMLElement,
         rowGap: 0,
       ),
       n = 12;

@@ -1,4 +1,5 @@
 /// For when you need an old-school terminal in your html document.
+library;
 
 export "src/sprite.dart" show Mode, Layer, Sprite, SpriteSize;
 export "src/screen.dart" show Screen;

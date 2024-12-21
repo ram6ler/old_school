@@ -1,7 +1,8 @@
-import "dart:html";
-import "screen.dart";
 import "dart:async" show StreamController, Timer;
+import "dart:math" show Rectangle;
+import "package:web/web.dart" as web;
 import "package:old_school/pixel_fonts/oak.dart" as Font;
+import "screen.dart";
 import "position.dart";
 import "cell.dart";
 import "key_data.dart";
@@ -77,8 +78,9 @@ class Terminal {
         _mouseBroadcaster = StreamController<MouseData>.broadcast(),
         _state = State.ready {
     if (isInteractive) {
-      MouseData getMouseData(MouseEvent event) {
-        final (pixelRow, pixelColumn) = screen.offsetToPixel(event.offset);
+      MouseData getMouseData(web.MouseEvent event) {
+        final (pixelRow, pixelColumn) = screen
+            .offsetToPixel((event.offsetX.toInt(), event.offsetY.toInt()));
         final row = pixelRow ~/ (8 + rowGap),
             column = pixelColumn ~/ 8,
             character = getCharacter(
@@ -105,8 +107,8 @@ class Terminal {
         );
       }
 
-      KeyboardData getKeyboardData(KeyboardEvent event) {
-        final keyCode = event.keyCode, character = event.key ?? "";
+      KeyboardData getKeyboardData(web.KeyboardEvent event) {
+        final keyCode = event.keyCode, character = event.key;
         return KeyboardData(
           keyCode: keyCode,
           key: character.length > 1 ? "" : character,
@@ -150,25 +152,23 @@ class Terminal {
             case State.awaitingString:
               _hideCursor();
               switch (event.keyCode) {
-                case KeyCode.ENTER:
+                case web.KeyCode.ENTER:
                   if (_inputBroadcaster.hasListener) {
                     _inputBroadcaster.add(getInputString().trim());
                     newLine();
                     _state = State.ready;
                   }
-                case KeyCode.BACKSPACE:
+                case web.KeyCode.BACKSPACE:
                   if (currentPosition.index > _startPosition.index) {
                     currentPosition.index--;
                     output(" ", newLineAfter: false);
                     currentPosition.index--;
                   }
                 case _:
-                  if (event.key != null) {
-                    final key = event.key!;
-                    if (key.length == 1 &&
-                        currentPosition.index < _endPosition.index) {
-                      output(key, newLineAfter: false);
-                    }
+                  final key = event.key;
+                  if (key.length == 1 &&
+                      currentPosition.index < _endPosition.index) {
+                    output(key, newLineAfter: false);
                   }
               }
             case State.awaitingMouseClick:
@@ -245,7 +245,7 @@ class Terminal {
   final String backgroundColor;
 
   /// The DOM element that will contain the terminal.
-  final Element container;
+  final web.HTMLElement container;
 
   /// Whether the terminal is interactive.
   final bool isInteractive;

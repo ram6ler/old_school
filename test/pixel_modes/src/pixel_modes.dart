@@ -1,12 +1,13 @@
-import "dart:html";
 import "package:old_school/old_school.dart";
+import "package:web/web.dart" as web;
 
 void main() async {
   print("hello");
   final terminal = Terminal(
         rows: 28,
         columns: 24,
-        container: document.getElementById("pixel_modes")!,
+        container:
+            web.document.getElementById("pixel_modes")! as web.HTMLElement,
         isInteractive: true,
         whenMouseIsClicked: (t, d) {
           print(d);

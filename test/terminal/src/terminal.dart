@@ -1,11 +1,12 @@
-import "dart:html";
+import "package:web/web.dart" as web;
 import "package:old_school/src/terminal.dart";
 
 void main() async {
   final terminal = Terminal(
       rows: 24,
       columns: 40,
-      container: document.getElementById("terminal")! as DivElement);
+      container:
+          web.document.getElementById("terminal")! as web.HTMLDivElement);
 
   terminal
     ..output("Hello, world!")
