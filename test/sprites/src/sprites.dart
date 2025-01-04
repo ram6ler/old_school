@@ -82,6 +82,7 @@ void main() {
         spriteSize: SpriteSize.b16,
       ),
       screen = Screen(
+        isInteractive: false,
         heightInPixels: 160,
         widthInPixels: 160,
         pixelWidth: 3,

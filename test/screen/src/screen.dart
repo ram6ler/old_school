@@ -1,4 +1,4 @@
-import "dart:math" show Random, Rectangle;
+import "dart:math" show Random;
 import "package:web/web.dart" as web;
 import "package:old_school/old_school.dart";
 
@@ -8,6 +8,7 @@ void main() {
       width = 250,
       height = 250,
       screen = Screen(
+        isInteractive: false,
         widthInPixels: width,
         heightInPixels: height,
         backgroundColor: "black",
@@ -22,7 +23,7 @@ void main() {
         pixelRow: rand.nextInt(height), pixelColumn: rand.nextInt(width));
   }
 
-  screen.clear(Rectangle(100, 50, 75, 25));
+  screen.clear(pixelTop: 100, pixelLeft: 50, pixelWidth: 75, pixelHeight: 25);
 
   final sprites8 = [
     [

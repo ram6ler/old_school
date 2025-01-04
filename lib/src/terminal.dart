@@ -1,5 +1,5 @@
 import "dart:async" show StreamController, Timer;
-import "dart:math" show Rectangle;
+import "dart:js_interop";
 import "package:web/web.dart" as web;
 import "package:old_school/pixel_fonts/oak.dart" as Font;
 import "screen.dart";
@@ -48,6 +48,7 @@ class Terminal {
     void Function(Terminal, KeyboardData)? whenKeyIsPressed,
     void Function(Terminal, KeyboardData)? whenKeyIsReleased,
   })  : screen = Screen(
+          isInteractive: isInteractive,
           heightInPixels: rows * (8 + rowGap),
           widthInPixels: columns * 8,
           pixelWidth: pixelWidth,
@@ -128,13 +129,17 @@ class Terminal {
 
       container
         ..tabIndex = -1
-        ..onFocus.listen((_) {
-          screen.focus();
-        })
-        ..onBlur.listen((_) {
-          screen.blur();
-        })
-        ..onKeyDown.listen((event) {
+        ..onfocus = (() {
+          if (isInteractive) {
+            screen.focus();
+          }
+        }).toJS
+        ..onblur = (() {
+          if (isInteractive) {
+            screen.blur();
+          }
+        }).toJS
+        ..onkeydown = ((web.KeyboardEvent event) {
           event.preventDefault();
           switch (_state) {
             case State.ready:
@@ -174,8 +179,8 @@ class Terminal {
             case State.awaitingMouseClick:
               break;
           }
-        })
-        ..onClick.listen((event) {
+        }).toJS
+        ..onclick = ((web.MouseEvent event) {
           event.preventDefault();
           if (_state == State.awaitingMouseClick &&
               _mouseBroadcaster.hasListener) {
@@ -184,34 +189,34 @@ class Terminal {
           } else if (whenMouseIsClicked != null) {
             whenMouseIsClicked(this, getMouseData(event));
           }
-        });
+        }).toJS;
 
       if (whenMouseIsMoved != null) {
-        container.onMouseMove.listen((event) {
+        container.onmousemove = ((web.MouseEvent event) {
           event.preventDefault();
           whenMouseIsMoved(this, getMouseData(event));
-        });
+        }).toJS;
       }
 
       if (whenMouseEntersTerminal != null) {
-        container.onMouseEnter.listen((event) {
+        container.onmouseenter = ((web.MouseEvent event) {
           event.preventDefault();
           whenMouseEntersTerminal(this, getMouseData(event));
-        });
+        }).toJS;
       }
 
       if (whenMouseLeavesTerminal != null) {
-        container.onMouseLeave.listen((event) {
+        container.onmouseleave = ((web.MouseEvent event) {
           event.preventDefault();
           whenMouseLeavesTerminal(this, getMouseData(event));
-        });
+        }).toJS;
       }
 
       if (whenKeyIsReleased != null) {
-        container.onKeyUp.listen((event) {
+        container.onkeyup = ((web.KeyboardEvent event) {
           event.preventDefault();
           whenKeyIsReleased(this, getKeyboardData(event));
-        });
+        }).toJS;
       }
 
       Timer.periodic(Duration(milliseconds: 300), (_) {
@@ -251,7 +256,7 @@ class Terminal {
   final bool isInteractive;
 
   /// The terminal screen.
-  final Screen screen;
+  late final Screen screen;
 
   /// The current position of the terminal's cursor.
   final Position currentPosition;
@@ -467,25 +472,32 @@ class Terminal {
 
   /// Clears the terminal over the region defined by `rectangle` if set;
   /// otherwise clears the whole terminal.
-  void clear([Rectangle<int>? rectangle]) {
-    rectangle = rectangle ?? Rectangle(0, 0, columns, rows);
-    for (var r = rectangle.top; r < rectangle.bottom; r++) {
-      for (var c = rectangle.left; c < rectangle.right; c++) {
+  void clear({
+    int topRow = 0,
+    int leftColumns = 0,
+    int? columnsWidth,
+    int? columnsHeight,
+  }) {
+    columnsWidth = columnsWidth ?? columns - leftColumns;
+    columnsHeight = columnsHeight ?? rows - topRow;
+    final bottom = topRow + columnsHeight, right = leftColumns + columnsWidth;
+    for (var r = topRow; r < bottom; r++) {
+      for (var c = leftColumns; c < right; c++) {
         _cells[r][c]
           ..character = " "
           ..color = defaultColor;
       }
     }
-    screen.clear(Rectangle(
-      rectangle.left * 8,
-      rectangle.top * (8 + rowGap),
-      rectangle.width * 8,
-      rectangle.height * (8 + rowGap),
-    ));
+    screen.clear(
+      pixelTop: topRow * (8 + rowGap),
+      pixelLeft: leftColumns * 8,
+      pixelWidth: columnsWidth * 8,
+      pixelHeight: columnsHeight * (8 + rowGap),
+    );
 
     currentPosition
-      ..row = rectangle.top
-      ..column = rectangle.left;
+      ..row = topRow
+      ..column = leftColumns;
   }
 
   /// Pokes a character defined by `data` to the terminal.

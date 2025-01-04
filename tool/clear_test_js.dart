@@ -6,6 +6,7 @@ main() async {
     "hello",
     "lines",
     "mouse_events",
+    "multiple",
     "pixel_modes",
     "screen",
     "smile",

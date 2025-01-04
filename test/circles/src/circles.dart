@@ -41,6 +41,7 @@ class Bubble {
 
 void main() {
   final screen = Screen(
+        isInteractive: false,
         heightInPixels: 250,
         widthInPixels: 250,
         pixelWidth: 2,

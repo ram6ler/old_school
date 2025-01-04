@@ -1,14 +1,15 @@
 import "dart:js_interop";
 import "dart:typed_data" show Uint32List;
-import "dart:math" show min, max, Rectangle;
+import "dart:math" show min, max;
 import "package:web/web.dart" as web;
-import "sprite.dart";
+import "sprite.dart" show Sprite, Mode, SpriteSize;
 
 /// A screen class that maps pixels to a wrapped canvas element, keeps track
 /// of which pixels have been set, and defines procedures for drawing shapes,
 /// bit patterns and sprites.
 class Screen {
   Screen({
+    required this.isInteractive,
     required this.heightInPixels,
     required this.widthInPixels,
     required this.pixelWidth,
@@ -40,12 +41,12 @@ class Screen {
       ..style.display = "block"
       ..style.outline = "none"
       ..context2D.imageSmoothingEnabled = false
-      ..onFocus.listen((_) {
+      ..onfocus = (() {
         focus();
-      })
-      ..onBlur.listen((_) {
+      }).toJS
+      ..onblur = (() {
         blur();
-      });
+      }).toJS;
 
     container
       ..style.display = "flex"
@@ -59,6 +60,9 @@ class Screen {
 
     clear();
   }
+
+  /// Whether the screen is interactive.
+  final bool isInteractive;
 
   /// The height of the screen in screen pixels.
   final int heightInPixels;
@@ -202,15 +206,19 @@ class Screen {
     return _data[pixelRow][index] & bit > 0;
   }
 
-  /// Clears region defined by `rectangle` if set; otherwise clears the
-  /// whole screen.
-  void clear([Rectangle<int>? rectangle]) {
-    rectangle = rectangle ?? Rectangle(0, 0, widthInPixels, heightInPixels);
+  /// Clears rectangular region of pixels.
+  void clear(
+      {int pixelTop = 0,
+      int pixelLeft = 0,
+      int? pixelWidth,
+      int? pixelHeight}) {
+    pixelWidth = pixelWidth ?? widthInPixels - pixelLeft;
+    pixelHeight = pixelHeight ?? heightInPixels - pixelTop;
     _clearBuffer();
-    if (rectangle.left == 0 &&
-        rectangle.top == 0 &&
-        rectangle.width == widthInPixels &&
-        rectangle.height == heightInPixels) {
+    if (pixelLeft == 0 &&
+        pixelTop == 0 &&
+        pixelWidth == widthInPixels &&
+        pixelHeight == heightInPixels) {
       for (var r = 0; r < _data.length; r++) {
         for (var c = 0; c < _data[r].length; c++) {
           _data[r][c] = 0;
@@ -222,13 +230,13 @@ class Screen {
         ..fillRect(0, 0, _buffer.width, _buffer.height)
         ..restore();
     } else {
-      final top = rectangle.top % heightInPixels,
-          left = rectangle.left % widthInPixels,
-          bottom = min(top + rectangle.height.abs(), heightInPixels),
-          right = min(left + rectangle.height.abs(), widthInPixels);
-      for (var r = top; r < bottom; r++) {
+      pixelTop %= heightInPixels;
+      pixelLeft %= widthInPixels;
+      final bottom = min(pixelTop + pixelHeight.abs(), heightInPixels),
+          right = min(pixelLeft + pixelHeight.abs(), widthInPixels);
+      for (var r = pixelTop; r < bottom; r++) {
         final pixelRow = r % heightInPixels;
-        for (var c = left; c < right; c++) {
+        for (var c = pixelLeft; c < right; c++) {
           final pixelColumn = c % widthInPixels;
           _setPixelOff(pixelRow, pixelColumn, _buffer, false);
         }
@@ -592,8 +600,10 @@ class Screen {
 
   /// Removes focus from the screen.
   void blur() {
-    _canvas
-      ..style.opacity = "0.5"
-      ..blur();
+    if (isInteractive) {
+      _canvas
+        ..style.opacity = "0.5"
+        ..blur();
+    }
   }
 }

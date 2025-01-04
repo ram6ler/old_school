@@ -1,6 +1,6 @@
 name: old_school
 description: Add old-school terminals to your html documents.
-version: 0.2.0
+version: 0.3.0
 homepage: https://github.com/ram6ler/old_school
 
 environment:
