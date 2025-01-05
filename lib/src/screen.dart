@@ -85,6 +85,9 @@ class Screen {
   /// The canvas used to draw the screen.
   final web.HTMLCanvasElement _canvas;
 
+  /// The canvas being used by the screen.
+  web.HTMLCanvasElement get canvas => _canvas;
+
   /// A buffer canvas for poking sprites.
   final web.HTMLCanvasElement _buffer;
 

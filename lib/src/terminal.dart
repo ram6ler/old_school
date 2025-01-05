@@ -474,15 +474,15 @@ class Terminal {
   /// otherwise clears the whole terminal.
   void clear({
     int topRow = 0,
-    int leftColumns = 0,
+    int leftColumn = 0,
     int? columnsWidth,
-    int? columnsHeight,
+    int? rowsHeight,
   }) {
-    columnsWidth = columnsWidth ?? columns - leftColumns;
-    columnsHeight = columnsHeight ?? rows - topRow;
-    final bottom = topRow + columnsHeight, right = leftColumns + columnsWidth;
+    columnsWidth = columnsWidth ?? columns - leftColumn;
+    rowsHeight = rowsHeight ?? rows - topRow;
+    final bottom = topRow + rowsHeight, right = leftColumn + columnsWidth;
     for (var r = topRow; r < bottom; r++) {
-      for (var c = leftColumns; c < right; c++) {
+      for (var c = leftColumn; c < right; c++) {
         _cells[r][c]
           ..character = " "
           ..color = defaultColor;
@@ -490,14 +490,14 @@ class Terminal {
     }
     screen.clear(
       pixelTop: topRow * (8 + rowGap),
-      pixelLeft: leftColumns * 8,
+      pixelLeft: leftColumn * 8,
       pixelWidth: columnsWidth * 8,
-      pixelHeight: columnsHeight * (8 + rowGap),
+      pixelHeight: rowsHeight * (8 + rowGap),
     );
 
     currentPosition
       ..row = topRow
-      ..column = leftColumns;
+      ..column = leftColumn;
   }
 
   /// Pokes a character defined by `data` to the terminal.
